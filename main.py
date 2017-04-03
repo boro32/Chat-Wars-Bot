@@ -156,7 +156,7 @@ def parse_text(text, username, message_id):
     global last_captcha_id
     if bot_enabled and username == bot_username:
         log('Получили сообщение от бота. Проверяем условия')
-
+        sleep(random.randint(1, 5))
         if "На выходе из замка охрана никого не пропускает" in text:
             # send_msg(admin_username, "Командир, у нас проблемы с капчой! #captcha " + '|'.join(captcha_answers.keys()))
             # fwd(admin_username, message_id)
@@ -179,24 +179,23 @@ def parse_text(text, username, message_id):
         elif text.find('Битва пяти замков через') != -1:
             hero_message_id = message_id
             m = re.search('Битва пяти замков через(?: ([0-9]+)ч){0,1}(?: ([0-9]+)){0,1}', text)
-            if not m.group(1):
-                if m.group(2) and int(m.group(2)) <= 59:
-                    state = re.search('Состояние:\\n(.*)$', text)
-                    if auto_def_enabled and time() - current_order['time'] > 3600:
-                        if donate_enabled:
-                            gold = int(re.search('💰([0-9]+)', text).group(1))
-                            log('Донат {0} золота в казну замка'.format(gold))
-                            action_list.append('/donate {0}'.format(gold))
-                        update_order(castle)
-                    return
+            if not m.group(1) and m.group(2) and int(m.group(2)) <= 20:
+                state = re.search('Состояние:\\n(.*)$', text)
+                if auto_def_enabled and state.group(1).find('🛌Отдых') != -1:
+                    if donate_enabled:
+                        gold = int(re.search('💰([0-9]+)', text).group(1))
+                        log('Донат {0} золота в казну замка'.format(gold))
+                        action_list.append('/donate {0}'.format(gold))
+                    update_order(castle)
+                return
             log('Времени достаточно')
             gold = int(re.search('💰([0-9]+)', text).group(1))
             endurance = int(re.search('Выносливость: ([0-9]+)', text).group(1))
             log('Золото: {0}, выносливость: {1}'.format(gold, endurance))
-            if les_enabled and endurance >= 2 and orders['peshera'] not in action_list:
-                action_list.append(orders['peshera'])
-            elif arena_enabled and gold >= 5 and '🔎Поиск соперника' not in action_list and time() - lt_arena > 3600:
+            if arena_enabled and gold >= 5 and '🔎Поиск соперника' not in action_list and time() - lt_arena > 3600:
                 action_list.append('🔎Поиск соперника')
+            elif les_enabled and endurance >= 1 and orders['les'] not in action_list:
+                action_list.append(orders['les'])
 
         elif arena_enabled and text.find('выбери точку атаки и точку защиты') != -1:
             lt_arena = time()
@@ -326,7 +325,7 @@ def parse_text(text, username, message_id):
                     'Корованы включены: {3}',
                     'Приказы включены: {4}',
                     'Авто деф включен: {5}',
-                    'Донат включен: {5}',
+                    'Донат включен: {6}',
                 ]).format(bot_enabled, arena_enabled, les_enabled, corovan_enabled, order_enabled, auto_def_enabled, donate_enabled))
 
             # Информация о герое
