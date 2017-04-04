@@ -181,12 +181,12 @@ def parse_text(text, username, message_id):
             m = re.search('Битва пяти замков через(?: ([0-9]+)ч){0,1}(?: ([0-9]+)){0,1}', text)
             if not m.group(1) and m.group(2) and int(m.group(2)) <= 20:
                 state = re.search('Состояние:\\n(.*)$', text)
-                if auto_def_enabled and state.group(1).find('🛌Отдых') != -1:
+                if auto_def_enabled and state.group(0).find('🛌Отдых') != -1:
                     if donate_enabled:
                         gold = int(re.search('💰([0-9]+)', text).group(1))
                         log('Донат {0} золота в казну замка'.format(gold))
                         action_list.append('/donate {0}'.format(gold))
-                    update_order(castle)
+                    update_order(current_order['order'])
                 return
             log('Времени достаточно')
             gold = int(re.search('💰([0-9]+)', text).group(1))
