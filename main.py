@@ -179,9 +179,9 @@ def parse_text(text, username, message_id):
         elif text.find('Битва пяти замков через') != -1:
             hero_message_id = message_id
             m = re.search('Битва пяти замков через(?: ([0-9]+)ч){0,1}(?: ([0-9]+)){0,1}', text)
-            if not m.group(1) and m.group(2) and int(m.group(2)) <= 20:
-                state = re.search('Состояние:\\n(.*)$', text)
-                if auto_def_enabled and state.group(0).find('🛌Отдых') != -1:
+            if not m.group(1) and ((m.group(2) and int(m.group(2)) <= 20) or not m.group(2)):
+                state = re.search('Состояние:(.*)$', text)
+                if auto_def_enabled and str(state).find('🛌Отдых') != -1:
                     if donate_enabled:
                         gold = int(re.search('💰([0-9]+)', text).group(1))
                         log('Донат {0} золота в казну замка'.format(gold))
@@ -213,22 +213,20 @@ def parse_text(text, username, message_id):
 
     else:
         if bot_enabled and order_enabled and username in order_usernames:
-            if text.find(orders['red']) != -1:
+            if text == orders['red']:
                 update_order(orders['red'])
-            elif text.find(orders['black']) != -1:
+            elif text == orders['black']:
                 update_order(orders['black'])
-            elif text.find(orders['white']) != -1:
+            elif text == orders['white']:
                 update_order(orders['white'])
-            elif text.find(orders['yellow']) != -1:
+            elif text == orders['yellow']:
                 update_order(orders['yellow'])
-            elif text.find(orders['blue']) != -1:
+            elif text == orders['blue']:
                 update_order(orders['blue'])
-            elif text.find('🌲') != -1:
+            elif text == orders['lesnoi_fort']:
                 update_order(orders['lesnoi_fort'])
-            elif text.find('⛰') != -1:
+            elif text == orders['gorni_fort']:
                 update_order(orders['gorni_fort'])
-            elif text.find('🛡') != -1:
-                update_order(castle)
 
             # send_msg(admin_username, 'Получили команду ' + current_order['order'] + ' от ' + username)
 
