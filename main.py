@@ -178,7 +178,7 @@ def parse_text(text, username, message_id):
 
         elif text.find('Битва пяти замков через') != -1:
             hero_message_id = message_id
-            m = re.search('Битва пяти замков через(?: ([0-9]+)ч){0,1}(?: ([0-9]+)){0,1}', text)
+            m = re.search('Битва пяти замков через(?: ([0-9]+)ч)?(?: ([0-9]+))?', text)
             if not m.group(1) and ((m.group(2) and int(m.group(2)) <= 20) or not m.group(2)):
                 state = re.search('Состояние:(.*)$', text)
                 if auto_def_enabled and str(state).find('🛌Отдых') != -1:
