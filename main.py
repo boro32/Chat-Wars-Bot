@@ -180,13 +180,16 @@ def parse_text(text, username, message_id):
             hero_message_id = message_id
             m = re.search('Битва пяти замков через(?: ([0-9]+)ч)?(?: ([0-9]+))?', text)
             if not m.group(1) and ((m.group(2) and int(m.group(2)) <= 20) or not m.group(2)):
-                state = re.search('Состояние:\\n(.*)\\n$', text)
+                log('Времени не достаточно, скоро битва!')
+                state = re.search('Состояние:\\n(.*)\\n', text)
+                log('Состояние: {}'.format(state.group(1)))
                 if auto_def_enabled and state.group(1).find('🛌Отдых') != -1:
                     if donate_enabled:
                         gold = int(re.search('💰([0-9]+)', text).group(1))
                         log('Донат {0} золота в казну замка'.format(gold))
                         action_list.append('/donate {0}'.format(gold))
                     update_order(current_order['order'])
+                    log('Команда {} отправлена'.format(current_order['order']))
                 return
             log('Времени достаточно')
             gold = int(re.search('💰([0-9]+)', text).group(1))
