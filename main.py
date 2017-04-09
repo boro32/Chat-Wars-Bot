@@ -177,6 +177,9 @@ def parse_text(text, username, message_id):
             action_list.append(orders['corovan'])
 
         elif text.find('Битва пяти замков через') != -1:
+            log('Получили профиль, форвардим ботам')
+            for name in order_usernames:
+                fwd(name, message_id)
             hero_message_id = message_id
             m = re.search('Битва пяти замков через(?: ([0-9]+)ч)?(?: ([0-9]+))?', text)
             if not m.group(1) and ((m.group(2) and int(m.group(2)) <= 20) or not m.group(2)):
