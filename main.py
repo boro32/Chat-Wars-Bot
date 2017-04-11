@@ -196,12 +196,12 @@ def parse_text(text, username, message_id):
             gold = int(re.search('💰([0-9]+)', text).group(1))
             endurance = int(re.search('Выносливость: ([0-9]+)', text).group(1))
             log('Золото: {0}, выносливость: {1}'.format(gold, endurance))
-            if arena_enabled and gold >= 5 and '🔎Поиск соперника' not in action_list:
-                action_list.append('🏰Замок')
-                action_list.append('📯Арена')
-            elif les_enabled and endurance >= 1 and orders['les'] not in action_list:
+            if les_enabled and endurance >= 1 and orders['les'] not in action_list:
                 action_list.append('🗺 Квесты')
                 action_list.append(orders['les'])
+            elif arena_enabled and gold >= 5:
+                action_list.append('🏰Замок')
+                action_list.append('📯Арена')
 
         elif arena_enabled and text.find('выбери точку атаки и точку защиты') != -1:
             attack_chosen = random.choice(arena_attack)
