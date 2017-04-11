@@ -94,7 +94,6 @@ current_order = {'time': 0, 'order': castle}
 sender = Sender(sock=socket_path) if socket_path else Sender(host=host,port=port)
 action_list = deque([])
 log_list = deque([], maxlen=30)
-lt_arena = 0
 get_info_diff = 360
 hero_message_id = 0
 last_captcha_id = 0
@@ -144,7 +143,6 @@ def queue_worker():
 
 
 def parse_text(text, username, message_id):
-    global lt_arena
     global hero_message_id
     global bot_enabled
     global arena_enabled
@@ -198,18 +196,24 @@ def parse_text(text, username, message_id):
             gold = int(re.search('💰([0-9]+)', text).group(1))
             endurance = int(re.search('Выносливость: ([0-9]+)', text).group(1))
             log('Золото: {0}, выносливость: {1}'.format(gold, endurance))
-            if arena_enabled and gold >= 5 and '🔎Поиск соперника' not in action_list and time() - lt_arena > 3600:
-                action_list.append('🔎Поиск соперника')
+            if arena_enabled and gold >= 5 and '🔎Поиск соперника' not in action_list:
+                action_list.append('🏰Замок')
+                action_list.append('📯Арена')
             elif les_enabled and endurance >= 1 and orders['les'] not in action_list:
+                action_list.append('🗺 Квесты')
                 action_list.append(orders['les'])
 
         elif arena_enabled and text.find('выбери точку атаки и точку защиты') != -1:
-            lt_arena = time()
-            attack_chosen = arena_attack[random.randint(0, 2)]
-            cover_chosen = arena_cover[random.randint(0, 2)]
+            attack_chosen = random.choice(arena_attack)
+            cover_chosen = random.choice(arena_cover)
             log('Атака: {0}, Защита: {1}'.format(attack_chosen, cover_chosen))
             action_list.append(attack_chosen)
             action_list.append(cover_chosen)
+
+        elif arena_enabled and text.find('Добро пожаловать на арену!') != -1:
+            fight_count = re.search('Поединков сегодня ([0-9]+) из ([0-9]+)\n', text)
+            if int(fight_count.group(1)) < int(fight_count.group(2)):
+                action_list.append('🔎Поиск соперника')
 
     elif username == 'ChatWarsCaptchaBot':
         if len(text) <= 4 and text in captcha_answers.values():
@@ -259,7 +263,6 @@ def parse_text(text, username, message_id):
                     '#order - Дебаг, последняя команда защиты/атаки замка',
                     '#log - Дебаг, последние 30 сообщений из лога',
                     '#time - Дебаг, текущее время',
-                    '#lt_arena - Дебаг, последняя битва на арене',
                     '#get_info_diff - Дебаг, последняя разница между запросами информации о герое',
                     '#ping - Дебаг, проверить жив ли бот',
                 ]))
@@ -343,9 +346,6 @@ def parse_text(text, username, message_id):
             elif text == '#log':
                 send_msg(admin_username, '\n'.join(log_list))
                 log_list.clear()
-
-            elif text == '#lt_arena':
-                send_msg(admin_username, str(lt_arena))
 
             elif text == '#order':
                 text_date = datetime.datetime.fromtimestamp(current_order['time']).strftime('%Y-%m-%d %H:%M:%S')
