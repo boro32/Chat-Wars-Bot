@@ -123,6 +123,12 @@ def queue_worker():
     # гребаная магия
     print(sender.contacts_search(bot_username))
     print(sender.contacts_search(captcha_bot))
+
+    if admin_username != '':
+        print(sender.contacts_search(admin_username))
+    if order_usernames != '':
+        for name in order_usernames:
+            print(sender.contacts_search(name))
     sleep(3)
     while True:
         try:
